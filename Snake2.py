@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# File Name: Snake2
+# File Name: Snake
 # Author: Wenlin Mao
 # Date: Dec. 5, 2017
 

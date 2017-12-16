@@ -1,4 +1,4 @@
-#Snake
+# Snake
 
 Program Description: This video game is a game that discuss the relationship
 between money and happiness. In this game, I used a snake to simulate the 
@@ -9,15 +9,15 @@ their belief in money and happiness will change over time. As my audiences
 play my game, they can also experience the happiness from the game 
 and realize that not only money can bring happiness to them.
 
-##Prerequisities
+## Prerequisities
 
 Need Python3 and Pygame
 
-##Running
+## Running
 
 Run `python3 Snake2.py` in terminal
 
-##Built With
+## Built With
 
 * Python - Programming language
 * Pygame - Python modules
