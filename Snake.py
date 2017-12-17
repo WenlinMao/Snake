@@ -7,7 +7,6 @@ import pygame
 import random
 import os
 
-
 WHITE = (0xff, 0xff, 0xff)
 BLACK = (0, 0, 0)
 GREEN = (0, 0xff, 0)
@@ -16,7 +15,7 @@ LINE_COLOR = (0x33, 0x33, 0x33)
 FPS = 30
 
 #HARD_LEVEL = list(range(4, int(FPS/2), 2))
-age = 10
+#age = 25
 
 D_LEFT, D_RIGHT, D_UP, D_DOWN = 0, 1, 2, 3
 
@@ -45,7 +44,6 @@ soliloquy = ['This is not \nenough, I need \nmore to be happy!\n',\
               'Money can no\n' +
                     ' longer bring \nme happiness\n but better\n' + 
                     'health status can.']
-
 
 pygame.init()
 pygame.mixer.init()
@@ -95,10 +93,10 @@ background = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 snake_head_img = pygame.image.load(os.path.join(image_folder, 'head.png'))
 snake_head_img.set_colorkey(BLACK)
 snake_body_img = pygame.image.load(os.path.join(image_folder, 'body.png'))
-snake_tail_img = pygame.image.load(os.path.join(image_folder, 'tail.png'))
+#snake_tail_img = pygame.image.load(os.path.join(image_folder, 'tail.png'))
 # scale image to be same as cell
 body = pygame.transform.scale(snake_body_img, (CELL_WIDTH, CELL_WIDTH))
-tail = pygame.transform.scale(snake_tail_img, (CELL_WIDTH, CELL_WIDTH))
+#tail = pygame.transform.scale(snake_tail_img, (CELL_WIDTH, CELL_WIDTH))
 
 
 # load food image
@@ -107,7 +105,8 @@ food_img = pygame.image.load(os.path.join(image_folder, 'DollarSign.jpg'))
 # scale image to be same as cell
 food = pygame.transform.scale(food_img, (CELL_WIDTH, CELL_WIDTH))
 
-
+# specify font type
+font_name = os.path.join(root_folder, 'font/font.ttc')
 
 
 # game volume
@@ -157,9 +156,10 @@ def draw_body(status):
     head = pygame.transform.scale(new_head_img, (CELL_WIDTH, CELL_WIDTH))
     screen.blit(head, status.snake_body[0])
 
+    '''
     global tail
 
-    '''
+    
     if len(status.turn_pos) == 0:
         screen.blit(tail, status.snake_body[-1])
     elif status.turn_pos[0] == status.snake_body[-1]:
@@ -172,11 +172,6 @@ def draw_body(status):
     '''
     
     
-
-
-
-
-
 # generate_food: draw food randomly
 def generate_food(status=None):
     while True:
@@ -223,23 +218,24 @@ class GameStatus():
         self.direction = D_LEFT
         self.game_is_over = True
         self.running = True
-        self.age = 10
+        self.age = 25
         self.money = 0
 
         #self.turn_pos = []
 
-        # list of snake body
+        # list of snake body, start in the middle of window
         self.snake_body = [(int(CELL_WIDTH_NUM / 2) * CELL_WIDTH,
-                            int(CELL_HEIGHT_NUM / 2) * CELL_WIDTH),
-                           (int((CELL_WIDTH_NUM / 2) + 1) * CELL_WIDTH,
                             int(CELL_HEIGHT_NUM / 2) * CELL_WIDTH)]
+                           #(int((CELL_WIDTH_NUM / 2) + 1) * CELL_WIDTH,
+                            #int(CELL_HEIGHT_NUM / 2) * CELL_WIDTH)]
 
 
 # present text to game
 def show_text(surf, text, size, x, y, color=WHITE):
 
-    # specify type of font
-    font_name = os.path.join(root_folder, 'font/font.ttc')
+    global font_name
+
+    # specify size of printed font
     font_print = pygame.font.Font(font_name, size)
 
     # 2D array where each row is a list of words.
@@ -324,9 +320,9 @@ while status.running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             status.running = False
-            status.reset_game_status()
             pygame.display.quit()
             pygame.quit()
+            break
             
         elif event.type == pygame.KEYDOWN:    
             # if game is over, press any key to restart
@@ -349,9 +345,12 @@ while status.running:
             # if the key is esc, end the game
             elif event.key == pygame.K_ESCAPE:
                 status.running = False
-                status.reset_game_status()
                 pygame.display.quit()
                 pygame.quit()
+                break
+
+    if status.running == False:
+        break
 
     if status.game_is_over:
         show_welcome(screen)
@@ -359,6 +358,8 @@ while status.running:
         continue
 
     # use speed as FPS / 10
+    # TODO: two keydown in one surface update may cause snake's head
+    # turn 180 degree and hit its body
     if counter % int(FPS / 10) == 0:
         # position of the tail of the snake for future grow
         last_pos = status.snake_body[-1]
