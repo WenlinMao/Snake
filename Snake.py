@@ -77,7 +77,8 @@ root_folder = os.path.dirname(__file__)
 music_folder = os.path.join(root_folder, 'music')
 
 # load music for background
-background_music = pygame.mixer.music.load(os.path.join(music_folder, 'Adventure Meme.mp3'))
+background_music = pygame.mixer.music.load(os.path.join(music_folder,\
+                                             'Adventure Meme.mp3'))
 
 # play when snake eat food
 eat_music = pygame.mixer.Sound(os.path.join(music_folder, 'armor-light.wav'))
@@ -94,8 +95,10 @@ background = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 snake_head_img = pygame.image.load(os.path.join(image_folder, 'head.png'))
 snake_head_img.set_colorkey(BLACK)
 snake_body_img = pygame.image.load(os.path.join(image_folder, 'body.png'))
+snake_tail_img = pygame.image.load(os.path.join(image_folder, 'tail.png'))
 # scale image to be same as cell
 body = pygame.transform.scale(snake_body_img, (CELL_WIDTH, CELL_WIDTH))
+tail = pygame.transform.scale(snake_tail_img, (CELL_WIDTH, CELL_WIDTH))
 
 
 # load food image
@@ -137,6 +140,7 @@ def draw_grids():
 
 # draw_body: Draw snake body
 def draw_body(status):
+
     for sb in status.snake_body[1:]:
         screen.blit(body, sb)
 
@@ -148,9 +152,29 @@ def draw_body(status):
         rot = 270
     elif status.direction == D_DOWN:
         rot = 90
+
     new_head_img = pygame.transform.rotate(snake_head_img, rot)
     head = pygame.transform.scale(new_head_img, (CELL_WIDTH, CELL_WIDTH))
     screen.blit(head, status.snake_body[0])
+
+    global tail
+
+    '''
+    if len(status.turn_pos) == 0:
+        screen.blit(tail, status.snake_body[-1])
+    elif status.turn_pos[0] == status.snake_body[-1]:
+        new_tail_img = pygame.transform.rotate(snake_tail_img, rot)
+        tail = pygame.transform.scale(new_tail_img,(CELL_WIDTH, CELL_WIDTH))
+        screen.blit(tail, status.snake_body[-1])
+        status.turn_pos.pop(0)
+    else:
+        screen.blit(tail, status.snake_body[-1])
+    '''
+    
+    
+
+
+
 
 
 # generate_food: draw food randomly
@@ -202,8 +226,12 @@ class GameStatus():
         self.age = 10
         self.money = 0
 
+        #self.turn_pos = []
+
         # list of snake body
         self.snake_body = [(int(CELL_WIDTH_NUM / 2) * CELL_WIDTH,
+                            int(CELL_HEIGHT_NUM / 2) * CELL_WIDTH),
+                           (int((CELL_WIDTH_NUM / 2) + 1) * CELL_WIDTH,
                             int(CELL_HEIGHT_NUM / 2) * CELL_WIDTH)]
 
 
@@ -229,7 +257,6 @@ def show_text(surf, text, size, x, y, color=WHITE):
 def show_welcome(screen):
 
     show_text(screen, 'Snake', 30, WIDTH / 2, HEIGHT / 2)
-    #show_text(screen, u'Start Game', 20, WIDTH / 2, HEIGHT / 2 + 50)
 
 
 def show_moneys(screen, status):
@@ -237,7 +264,7 @@ def show_moneys(screen, status):
     # age field of the game in purpose of expressing the relationship
     # of happiness and age
     show_text(screen, u'Age: {}'.format(status.age), CELL_WIDTH,
-        WIDTH + CELL_WIDTH * 5, CELL_WIDTH * 4)
+        WIDTH + CELL_WIDTH * 5, CELL_WIDTH * 3)
 
     show_text(screen, u'Money: ${}'.format(status.money), CELL_WIDTH,
         WIDTH + CELL_WIDTH * 5, CELL_WIDTH * 5)
@@ -245,36 +272,42 @@ def show_moneys(screen, status):
     # show soliloquy according to the condition
     score = status.money / 10000
 
-    if score >= 1 and score <= 1: 
+    '''
+    if score == 1: 
         show_text(screen, soliloquy[0]\
                     , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
                     , CELL_WIDTH * 9)
-    elif score >= 2 and score <= 2:
+    elif score == 2:
         show_text(screen, soliloquy[1]\
                     , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
                     , CELL_WIDTH * 9)
-    elif score >= 3 and score <= 3:
+    elif score == 3:
         show_text(screen, soliloquy[2]\
                     , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
                     , CELL_WIDTH * 9)
-    elif score >= 4 and score <= 4:
+    elif score == 4:
         show_text(screen, soliloquy[3]\
                     , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
                     , CELL_WIDTH * 9)
-    elif score >= 5 and score <= 5:
+    elif score == 5:
         show_text(screen, soliloquy[4]\
                     , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
                     , CELL_WIDTH * 9)
-    elif score >= 6 and score <= 6:
+    elif score == 6:
         show_text(screen, soliloquy[5]\
                     , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
                     , CELL_WIDTH * 9)
-    elif score >= 7 and score <= 7:
+    elif score == 7:
         show_text(screen, soliloquy[6]\
                     , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
                     , CELL_WIDTH * 9)
-    elif score >= 8 and score <= 8:
+    elif score == 8:
         show_text(screen, soliloquy[7]\
+            , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
+            , CELL_WIDTH * 9)
+    '''
+        
+    show_text(screen, soliloquy[int((score - 1)/10)]\
                     , CELL_WIDTH, WIDTH + CELL_WIDTH * 5\
                     , CELL_WIDTH * 9)
 
@@ -303,6 +336,7 @@ while status.running:
                 status.game_is_over = False
                 continue
 
+
             # set status according to key pressed
             if event.key == pygame.K_UP and status.direction != D_DOWN:
                 status.direction = D_UP
@@ -328,6 +362,8 @@ while status.running:
     if counter % int(FPS / 10) == 0:
         # position of the tail of the snake for future grow
         last_pos = status.snake_body[-1]
+
+        #status.turn_pos.append(status.snake_body[0])
 
         # update the snake's body
         for i in range(len(status.snake_body) - 1, 0, -1):
@@ -366,7 +402,7 @@ while status.running:
         for sb in status.snake_body[1: ]:
             if sb == status.snake_body[0]:
                 status.game_is_over = True
-                if status.money >= 80000:
+                if status.money >= 800000:
                     show_text(screen, 'You will die no matter \nhow many' + \
                                ' money you have', 30, WIDTH / 2, HEIGHT / 2)
                 else:
@@ -386,7 +422,8 @@ while status.running:
             status.money += 10000
             status.food_pos = generate_food(status)
 
-            for i in range(10):
+            # length after eat one food
+            for i in range(5):
                 status.snake_body.append(last_pos)
 
             #status.age = HARD_LEVEL[min(int(len(status.snake_body) / 10),

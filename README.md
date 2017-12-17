@@ -17,7 +17,7 @@ Need Python3 and Pygame
 
 ## Running
 
-Run `python3 Snake2.py` in terminal
+Run `python3 Snake.py` in terminal
 
 ## Built With
 
